@@ -1,6 +1,8 @@
 #include<iostream>
 #include <SFML/Graphics.hpp>
 
+#include "Inputs.hh"
+
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define GAME_NAME "Roguelike game"
@@ -11,6 +13,47 @@ int main()
     sf::Window* window = new sf::Window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), GAME_NAME);
     //aqui vas a guardar los eventos dentro de la ventana, eje: teclado, mouse, etc.
     sf::Event event;
+
+    Inputs* inputs = new Inputs();
+
+
+	// Activa la sincronización vertical (60 fps)
+	window->setVerticalSyncEnabled(true);
+
+	// Creamos una textura
+	sf::Texture textura;
+
+	// Cargamos la textura desde un archivo
+	if(!textura.loadFromFile("data/Mustang.png"))
+	{
+		// Si hay un error salimos
+		std::cout << "No se pudo cargar la textura" << std::endl;
+	}
+
+	// Creamos un sprite
+	sf::Sprite sprite;
+	// Asignamos la textura al sprite
+	sprite.setTexture(textura);
+	// Seleccionamos solo un rectangulo de la textura
+	sprite.setTextureRect(sf::IntRect(120, 120, 128, 128));
+	// Movemos el sprite
+	sprite.move(100, 100);
+	// Cambiamos el origen al centro del sprite
+	sf::Vector2f centro;
+	centro.x = sprite.getTextureRect().width / 2.f;
+	centro.y = sprite.getTextureRect().height / 2.f;
+	sprite.setOrigin(centro);
+	// Rotamos el sprite 360 grados
+	sprite.rotate(360);
+
+
+	// Creamos otro sprite con la MISMA textura
+	sf::Sprite Mustang(textura);
+	Mustang.setPosition(200, 150);
+	Mustang.setTextureRect(sf::IntRect(0, 0, 364, 364));
+
+    //LO VISTO EN CLASE:
+
     //esto es el loop principal, mientras la ventana este abierta, esto se va ejecutar.
     while (window->isOpen())
     {
@@ -23,43 +66,28 @@ int main()
                 window->close();
             }
         }
-        //la clase Keyboard trae la inputs del teclado
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        {
-            std::cout << "left" << std::endl;
-        }
-         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        {
-            std::cout << "right" << std::endl;
-        }
-         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            std::cout << "up" << std::endl;
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            std::cout << "down" << std::endl;
-        }
 
-        //Hay un joystick conetado ?
-        if(sf::Joystick::isConnected(0)) //literalmente le digo, ve y busca el joystick numero 0 en la lista de controles conectados. 
-        {
-            //cachamos el valor del axis X y Y, lo dividimos entre 100 porque el valor min de los axis es -100 y el maximo 100
-            //osea lo pusimos en escala de 1
-            float x{sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) /100};
-            float y{sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y) /100};
+        Vec2* keyboardAxis{inputs->GetKeyboardAxis()};
+        Vec2* joystickAxis{inputs->GetJoystickAxis()};
+        //std::cout << "keyboard axis x: " << keyboardAxis->x << " keyboard axis y: " << keyboardAxis->y << std::endl;
 
-             // ? = si es verdadero; y : = si es falso
+        std::cout << "joystic axis x: " << joystickAxis->x << " joystic axis y: " << joystickAxis->y << std::endl;
 
-             //el joystick por si solo nunca deja de enviar valores, osea aunque no lo estes tocando, envia datos
-            //por eso debemos hacer un filtro de las entradas de este.
-            //en este caso el espectro de menor a -0.2 y mayor a 0.2 es el valor 1 osea que si vale.
-            x = x > 0.2f ? 1 : x < -0.2f ? -1 : 0;
-            y = -(y > 0.2f ? 1 : y < -0.2f ? -1 : 0);
+        //inputs->GetJoystickAxis();
+        delete keyboardAxis;
+        delete joystickAxis;
 
-            std::cout << "X: " << x << " Y: " << y << std::endl;
-        }
+        window->clear(sf::Color(180, 200, 255));
+        window->draw(sprite);
+        window->draw(Mustang);   
+        window->display();
     }
+
+    std::cout << &window << std::endl;
+    std::cout << &textura << std::endl;
+    std::cout << &Mustang << std::endl;
+    std::cout << &sprite << std::endl;
+    std::cin.get();
     
     return 0;
 }
