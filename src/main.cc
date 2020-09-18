@@ -2,12 +2,17 @@
 #include <SFML/Graphics.hpp>
 
 #include "Inputs.hh"
+#include "Character.hh"
+#include "Animation.hh"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define GAME_NAME "Roguelike game"
 #define TILES1 "assets/sprites/tiles1.png"
-#define SPRITE_SCALE 2.f
+#define TILES2 "assets/sprites/tiles2.png"
+#define SPRITE_SCALE 4.f
+#define FPS 120
+#define PLAYER_MOVESPEED 0.3f
 
 int main()
 {
@@ -16,13 +21,24 @@ int main()
     //aqui vas a guardar los eventos dentro de la ventana, eje: teclado, mouse, etc.
     sf::Event event;
 
-    Inputs* inputs = {new Inputs()};
+    sf::Clock* clock{new sf::Clock()};
+    float deltaTime{};
+
+    window->setFramerateLimit(FPS);
+
+    Inputs* inputs{new Inputs()};
 
     sf::Texture* tilesTexture1{new sf::Texture()};
     tilesTexture1->loadFromFile(TILES1);
 
-    sf::Sprite* sprite1{new sf::Sprite(*tilesTexture1, *(new sf::IntRect(16 * 0, 16 * 11, 16, 16)))};
-    sprite1->setScale(*(new sf::Vector2f(SPRITE_SCALE, SPRITE_SCALE)));
+    sf::Texture* tilesTexture2{new sf::Texture()};
+    tilesTexture2->loadFromFile(TILES2);
+
+    Character* character1{new Character(tilesTexture2, 16 * 1, 16 * 5, 16, 16, SPRITE_SCALE, SPRITE_SCALE)};
+    Animation* idle{new Animation(0, 5, character1->GetSprite(), 40.f)};
+
+    //sf::Sprite* sprite1{new sf::Sprite(*tilesTexture1, *(new sf::IntRect(16 * 0, 16 * 11, 16, 16)))};
+    //sprite1->setScale(*(new sf::Vector2f(SPRITE_SCALE, SPRITE_SCALE)));
     //sprite1->setPosition((WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2);
 
     /*sf::RectangleShape* boxShape{new sf::RectangleShape(*(new sf::Vector2f(100, 100)))};
@@ -38,7 +54,7 @@ int main()
     //TAREA:
 
 	// Activa la sincronización vertical (60 fps)
-	window->setVerticalSyncEnabled(true);
+	/*window->setVerticalSyncEnabled(true);
 
 	// Creamos una textura
 	sf::Texture textura;
@@ -70,7 +86,7 @@ int main()
 	// Creamos otro sprite con la MISMA textura
 	sf::Sprite Mustang(textura);
 	Mustang.setPosition(200, 150);
-	Mustang.setTextureRect(sf::IntRect(0, 0, 364, 364));
+	Mustang.setTextureRect(sf::IntRect(0, 0, 364, 364));*/
 
     //LO VISTO EN CLASE:
 
@@ -94,18 +110,27 @@ int main()
 
         if(sf::Joystick::isConnected(0))
         {
-            sprite1->move(joystickAxis->x, joystickAxis->y);
+            character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
+            character1->FlipSpriteX(joystickAxis->x);
         }
         else
         {
-            sprite1->move(keyboardAxis->x, keyboardAxis->y);
+            character1->GetSprite()->move(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED);
+            character1->FlipSpriteX(keyboardAxis->x);
         }
 
-        window->clear(sf::Color::Black);//lipiar la pantalla
-        //window->draw(*boxShape); //agregar la caja a las cosas que se van a dibujar
-        //window->draw(*pointShape);
-        window->draw(*sprite1);
+        idle->Play(deltaTime);
+
+        window->clear(*(new sf::Color(150, 100, 0, 255)));//lipiar la pantalla
+
+        window->draw(*character1->GetSprite());
         window->display(); //mostrar en pantalla lo que se va dibujar
+
+        sf::Time timeElapsed = clock->getElapsedTime();
+        deltaTime = timeElapsed.asMilliseconds();
+        clock->restart();
+
+        //std::cout << "delta time: " << deltaTime << std::endl;
 
         //Tmb de la Tarea
         /*window->clear(sf::Color::Black);
