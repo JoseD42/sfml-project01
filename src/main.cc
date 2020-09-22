@@ -3,13 +3,13 @@
 
 #include "Inputs.hh"
 #include "Character.hh"
-#include "Animation.hh"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define GAME_NAME "Roguelike game"
 #define TILES1 "assets/sprites/tiles1.png"
 #define TILES2 "assets/sprites/tiles2.png"
+#define TILES3 "assets/sprites/tiles3.png"
 #define SPRITE_SCALE 4.f
 #define FPS 120
 #define PLAYER_MOVESPEED 0.3f
@@ -25,31 +25,31 @@ int main()
     float deltaTime{};
 
     window->setFramerateLimit(FPS);
-
+    //Game inputs
     Inputs* inputs{new Inputs()};
-
+    //Textures
     sf::Texture* tilesTexture1{new sf::Texture()};
     tilesTexture1->loadFromFile(TILES1);
-
     sf::Texture* tilesTexture2{new sf::Texture()};
     tilesTexture2->loadFromFile(TILES2);
+    sf::Texture* tilesTexture3{new sf::Texture()};
+    tilesTexture3->loadFromFile(TILES3);
 
+    sf::Sprite* tileGround1{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 3, 16, 16)))};
+    tileGround1->setScale(SPRITE_SCALE, SPRITE_SCALE);
+
+
+    //Main Player
     Character* character1{new Character(tilesTexture2, 16 * 1, 16 * 5, 16, 16, SPRITE_SCALE, SPRITE_SCALE)};
-    Animation* idle{new Animation(0, 5, character1->GetSprite(), 40.f)};
+    character1->SetAnimations(
+        new Animation*[2]
+        {
+            new Animation(5, 0, 5, character1->GetSprite(), 40.f),
+            new Animation(6, 0, 5, character1->GetSprite(), 80.f)
+        }
+    );
 
-    //sf::Sprite* sprite1{new sf::Sprite(*tilesTexture1, *(new sf::IntRect(16 * 0, 16 * 11, 16, 16)))};
-    //sprite1->setScale(*(new sf::Vector2f(SPRITE_SCALE, SPRITE_SCALE)));
-    //sprite1->setPosition((WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2);
-
-    /*sf::RectangleShape* boxShape{new sf::RectangleShape(*(new sf::Vector2f(100, 100)))};
-    boxShape->setPosition((WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2);
-    boxShape->setFillColor(sf::Color::Transparent);
-    boxShape->setOutlineColor(sf::Color::Green);
-    boxShape->setOutlineThickness(2.f);
-
-    sf::CircleShape* pointShape{new sf::CircleShape(2.f)};
-    pointShape->setPosition(boxShape->getPosition());
-    pointShape->setFillColor(sf::Color::White);*/
+    character1->GetSprite()->setPosition(400, 300);
 
     //TAREA:
 
@@ -112,17 +112,40 @@ int main()
         {
             character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
             character1->FlipSpriteX(joystickAxis->x);
+            
+            if(std::abs(joystickAxis->x) > 0 || std::abs(joystickAxis->y) > 0)
+            {
+                //run
+                character1->GetAnimation(1)->Play(deltaTime);
+            }
+            else
+            {
+                //idle
+                character1->GetAnimation(0)->Play(deltaTime);
+            }
         }
         else
         {
             character1->GetSprite()->move(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED);
             character1->FlipSpriteX(keyboardAxis->x);
+
+            if(std::abs(keyboardAxis->x) > 0 || std::abs(keyboardAxis->y) > 0)
+            {
+                //run
+                character1->GetAnimation(1)->Play(deltaTime);
+            }
+            else
+            {
+                //idle
+                character1->GetAnimation(0)->Play(deltaTime);
+            }
         }
 
-        idle->Play(deltaTime);
+        //character1->GetAnimation(0)->Play(deltaTime);
+
 
         window->clear(*(new sf::Color(150, 100, 0, 255)));//lipiar la pantalla
-
+        window->draw(*tileGround1);
         window->draw(*character1->GetSprite());
         window->display(); //mostrar en pantalla lo que se va dibujar
 
