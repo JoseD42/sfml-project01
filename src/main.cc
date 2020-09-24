@@ -12,7 +12,7 @@
 #define TILES3 "assets/sprites/tiles3.png"
 #define SPRITE_SCALE 4.f
 #define FPS 120
-#define PLAYER_MOVESPEED 0.3f
+#define PLAYER_MOVESPEED 0.2f
 
 int main()
 {
@@ -35,11 +35,112 @@ int main()
     sf::Texture* tilesTexture3{new sf::Texture()};
     tilesTexture3->loadFromFile(TILES3);
 
-    sf::Sprite* tileGround1{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 3, 16, 16)))};
-    tileGround1->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    const float tileBaseWidth{16 * SPRITE_SCALE};
+    const float tileBaseHeight{16 * SPRITE_SCALE};
 
+    sf::Sprite* tileWall_1_1{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 1, 16, 16)))};
+    tileWall_1_1->setScale(SPRITE_SCALE, SPRITE_SCALE);
 
-    //Main Player
+    sf::Sprite* tileWall_1_2{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 2, 16, 16)))};
+    tileWall_1_2->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileWall_1_2->move(tileBaseWidth * 1, tileWall_1_2->getPosition().y);
+    
+    sf::Sprite* tileWall_1_3{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 3, 16, 16)))};
+    tileWall_1_3->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileWall_1_3->move(tileBaseWidth * 2, tileWall_1_3->getPosition().y);
+
+    sf::Sprite* tileGround_1_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 4, 16, 16)))};
+    tileGround_1_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_1_4->move(tileWall_1_3->getPosition().y, tileBaseHeight);
+
+    sf::Sprite* tileGround_2_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 4, 16, 16)))};
+    tileGround_2_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_2_4->move(tileBaseWidth * 1, tileBaseHeight);
+
+    sf::Sprite* tileGround_3_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 4, 16, 16)))};
+    tileGround_3_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_3_4->move(tileBaseWidth * 2, tileBaseHeight);
+
+    sf::Sprite* tileGround_1_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 5, 16, 16)))};
+    tileGround_1_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_1_5->move(tileGround_1_5->getPosition().x, tileBaseHeight * 2);
+
+    sf::Sprite* tileGround_2_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 5, 16, 16)))};
+    tileGround_2_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_2_5->move(tileBaseWidth * 1, tileBaseHeight * 2);
+
+    sf::Sprite* tileGround_3_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 5, 16, 16)))};
+    tileGround_3_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_3_5->move(tileBaseWidth * 2, tileBaseHeight * 2);
+
+    sf::Sprite* tileGround_1_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 6, 16, 16)))};
+    tileGround_1_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_1_6->move(tileGround_1_6->getPosition().x, tileBaseHeight * 3);
+
+    sf::Sprite* tileGround_2_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 6, 16, 16)))};
+    tileGround_2_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_2_6->move(tileBaseWidth * 1, tileBaseHeight * 3);
+
+    sf::Sprite* tileGround_3_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 6, 16, 16)))};
+    tileGround_3_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    //tileGround_3_6->move(tileBaseWidth * 2, tileBaseHeight * 3);
+
+    //w = tileWall_1_1  q = tileWall_1_2    e =  tileWall_1_3   
+
+    //g = tileGround_1_4    f = tileGround_2_4  d = tileGround_3_4
+
+    char** tiles 
+    {
+        new char*[2]
+        {
+            new char[12]{'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e'},
+            new char[12]{'g', 'f', 'd', 'g', 'f', 'd', 'g', 'f', 'd', 'g', 'f', 'd'}
+        }
+    };
+
+    std::vector<sf::Sprite> maze;
+
+    for(int i = 0; i < 2; i++)
+    {
+        for(int j = 0; j < 12; j++)
+        {
+            char& tile = *(*(tiles + i) + j);
+
+            switch (tile)
+            {
+                case 'w':
+                    maze.push_back(*tileWall_1_1);
+                    //maze.back().move(tileBaseWidth * j, tileBaseHeight * i);
+                    //tileWall_1_1->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;
+                case 'q':
+                    maze.push_back(*tileWall_1_2);
+                    //tileWall_1_2->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;
+                case 'e':
+                    maze.push_back(*tileWall_1_3);
+                    //tileWall_1_3->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;
+                case 'g':
+                    maze.push_back(*tileGround_1_4);
+                    //tileGround_1_4->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;
+                case 'f':
+                    maze.push_back(*tileGround_2_4);
+                    //tileGround_2_4->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;
+                case 'd':
+                    maze.push_back(*tileGround_3_4);
+                    //tileGround_3_4->move(tileBaseWidth * j, tileBaseHeight * i);
+                    break;                
+                default:
+                    break;
+            }
+            maze.back().move(tileBaseWidth * j, tileBaseHeight * i);
+        }
+    }
+
+    //Main player
     Character* character1{new Character(tilesTexture2, 16 * 1, 16 * 5, 16, 16, SPRITE_SCALE, SPRITE_SCALE)};
     character1->SetAnimations(
         new Animation*[2]
@@ -102,17 +203,16 @@ int main()
                 window->close();
             }
         }
-
+        
         Vec2* keyboardAxis{inputs->GetKeyboardAxis()};
         Vec2* joystickAxis{inputs->GetJoystickAxis()};
-        //std::cout << "keyboard axis x: " << keyboardAxis->x << " keyboard axis y: " << keyboardAxis->y << std::endl;
-        //std::cout << "joystic axis x: " << joystickAxis->x << " joystic axis y: " << joystickAxis->y << std::endl;
+   
 
         if(sf::Joystick::isConnected(0))
         {
             character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
             character1->FlipSpriteX(joystickAxis->x);
-            
+
             if(std::abs(joystickAxis->x) > 0 || std::abs(joystickAxis->y) > 0)
             {
                 //run
@@ -141,12 +241,31 @@ int main()
             }
         }
 
-        //character1->GetAnimation(0)->Play(deltaTime);
-
-
         window->clear(*(new sf::Color(150, 100, 0, 255)));//lipiar la pantalla
-        window->draw(*tileGround1);
+
+        /*window->draw(*tileWall_1_1);
+        window->draw(*tileWall_1_2);
+        window->draw(*tileWall_1_3);
+
+        window->draw(*tileGround_1_4);
+        window->draw(*tileGround_2_4);
+        window->draw(*tileGround_3_4);
+
+        window->draw(*tileGround_1_5);
+        window->draw(*tileGround_2_5);
+        window->draw(*tileGround_3_5);
+
+        window->draw(*tileGround_1_6);
+        window->draw(*tileGround_2_6);
+        window->draw(*tileGround_3_6);*/
+
+        for(auto& mazeTile : maze)
+        {
+            window->draw(mazeTile);
+        }
+        
         window->draw(*character1->GetSprite());
+        
         window->display(); //mostrar en pantalla lo que se va dibujar
 
         sf::Time timeElapsed = clock->getElapsedTime();
