@@ -1,8 +1,10 @@
 #include<iostream>
 #include <SFML/Graphics.hpp>
+#include<box2d/box2d.h>
 
 #include "Inputs.hh"
 #include "Character.hh"
+#include "BoxCollider.hh"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -12,7 +14,7 @@
 #define TILES3 "assets/sprites/tiles3.png"
 #define SPRITE_SCALE 4.f
 #define FPS 120
-#define PLAYER_MOVESPEED 0.2f
+#define PLAYER_MOVESPEED 3.0f
 
 int main()
 {
@@ -38,71 +40,89 @@ int main()
     const float tileBaseWidth{16 * SPRITE_SCALE};
     const float tileBaseHeight{16 * SPRITE_SCALE};
 
+    //Tiles
+
     sf::Sprite* tileWall_1_1{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 1, 16, 16)))};
     tileWall_1_1->setScale(SPRITE_SCALE, SPRITE_SCALE);
 
     sf::Sprite* tileWall_1_2{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 2, 16, 16)))};
     tileWall_1_2->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileWall_1_2->move(tileBaseWidth * 1, tileWall_1_2->getPosition().y);
     
     sf::Sprite* tileWall_1_3{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 3, 16, 16)))};
     tileWall_1_3->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileWall_1_3->move(tileBaseWidth * 2, tileWall_1_3->getPosition().y);
 
     sf::Sprite* tileGround_1_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 4, 16, 16)))};
     tileGround_1_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_1_4->move(tileWall_1_3->getPosition().y, tileBaseHeight);
 
     sf::Sprite* tileGround_2_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 4, 16, 16)))};
     tileGround_2_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_2_4->move(tileBaseWidth * 1, tileBaseHeight);
 
     sf::Sprite* tileGround_3_4{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 4, 16, 16)))};
     tileGround_3_4->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_3_4->move(tileBaseWidth * 2, tileBaseHeight);
 
     sf::Sprite* tileGround_1_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 5, 16, 16)))};
     tileGround_1_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_1_5->move(tileGround_1_5->getPosition().x, tileBaseHeight * 2);
 
     sf::Sprite* tileGround_2_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 5, 16, 16)))};
     tileGround_2_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_2_5->move(tileBaseWidth * 1, tileBaseHeight * 2);
 
     sf::Sprite* tileGround_3_5{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 5, 16, 16)))};
     tileGround_3_5->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_3_5->move(tileBaseWidth * 2, tileBaseHeight * 2);
 
     sf::Sprite* tileGround_1_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 1, 16 * 6, 16, 16)))};
     tileGround_1_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_1_6->move(tileGround_1_6->getPosition().x, tileBaseHeight * 3);
 
     sf::Sprite* tileGround_2_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 2, 16 * 6, 16, 16)))};
     tileGround_2_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_2_6->move(tileBaseWidth * 1, tileBaseHeight * 3);
 
     sf::Sprite* tileGround_3_6{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 3, 16 * 6, 16, 16)))};
     tileGround_3_6->setScale(SPRITE_SCALE, SPRITE_SCALE);
-    //tileGround_3_6->move(tileBaseWidth * 2, tileBaseHeight * 3);
+
+    //Items
+    sf::Sprite* treasureSprite{new sf::Sprite(*tilesTexture3, *(new sf::IntRect(16 * 19, 16 * 19, 16, 16)))};
+    treasureSprite->setScale(SPRITE_SCALE, SPRITE_SCALE);
+    treasureSprite->setPosition(400, 400);
+
+    BoxCollider* treasureCollider = new BoxCollider(300, 250, new sf::Color(0, 255, 0, 255), 16, 16);
+    treasureCollider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);
+
+    treasureCollider->GetBoxShape()->setPosition(treasureSprite->getPosition());
+
+    /* BoxCollider* character1Collider = new BoxCollider(400, 300, new sf::Color(0, 255, 0, 255), 16, 16);
+    character1Collider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);*/
+
+
 
     //w = tileWall_1_1  q = tileWall_1_2    e =  tileWall_1_3   
 
     //g = tileGround_1_4    f = tileGround_2_4  d = tileGround_3_4
 
+    //a = tileGround_1_5    s = tileGround_2_5  z = tileGround_3_5
+
+    //x = tileGround_1_6    c = tileGround_2_6  v = tileGround_3_6
+
     char** tiles 
     {
-        new char*[2]
+        new char*[10]
         {
-            new char[12]{'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e'},
-            new char[12]{'g', 'f', 'd', 'g', 'f', 'd', 'g', 'f', 'd', 'g', 'f', 'd'}
+            new char[13]{'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e', 'w', 'q', 'e', 'w'},
+            new char[13]{'g', 'g', 'd', 'g', 'f', 'g', 'g', 'f', 'd', 'g', 'f', 'd', 'g'},
+            new char[13]{'g', 's', 'd', 'g', 'g', 'x', 'g', 'f', 'g', 'g', 'f', 'c', 'g'},
+            new char[13]{'g', 'g', 'd', 'g', 'g', 'd', 'g', 'g', 'd', 's', 'g', 'd', 'g'},
+            new char[13]{'z', 'g', 'g', 'g', 'g', 'z', 'g', 'g', 'd', 'g', 'g', 'x', 'g'},
+            new char[13]{'g', 'g', 'g', 'g', 'g', 'd', 'g', 'g', 'd', 'g', 'f', 'g', 'g'},
+            new char[13]{'g', 'f', 'd', 's', 'f', 'd', 'g', 'f', 'g', 'g', 'f', 'd', 'g'},
+            new char[13]{'g', 'a', 'x', 'g', 'f', 'g', 'g', 'g', 'g', 's', 'v', 'g', 'g'},
+            new char[13]{'g', 'f', 'g', 'g', 'f', 'g', 'g', 'f', 'd', 'g', 'f', 'd', 'g'},
+            new char[13]{'g', 's', 'd', 'g', 'f', 'd', 'g', 'f', 'd', 'g', 'f', 'd', 'g'}
         }
     };
 
     std::vector<sf::Sprite> maze;
 
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < 10; i++)
     {
-        for(int j = 0; j < 12; j++)
+        for(int j = 0; j < 13; j++)
         {
             char& tile = *(*(tiles + i) + j);
 
@@ -110,29 +130,40 @@ int main()
             {
                 case 'w':
                     maze.push_back(*tileWall_1_1);
-                    //maze.back().move(tileBaseWidth * j, tileBaseHeight * i);
-                    //tileWall_1_1->move(tileBaseWidth * j, tileBaseHeight * i);
                     break;
                 case 'q':
                     maze.push_back(*tileWall_1_2);
-                    //tileWall_1_2->move(tileBaseWidth * j, tileBaseHeight * i);
                     break;
                 case 'e':
                     maze.push_back(*tileWall_1_3);
-                    //tileWall_1_3->move(tileBaseWidth * j, tileBaseHeight * i);
                     break;
                 case 'g':
                     maze.push_back(*tileGround_1_4);
-                    //tileGround_1_4->move(tileBaseWidth * j, tileBaseHeight * i);
                     break;
                 case 'f':
                     maze.push_back(*tileGround_2_4);
-                    //tileGround_2_4->move(tileBaseWidth * j, tileBaseHeight * i);
                     break;
                 case 'd':
                     maze.push_back(*tileGround_3_4);
-                    //tileGround_3_4->move(tileBaseWidth * j, tileBaseHeight * i);
-                    break;                
+                    break;    
+                case 'a':
+                    maze.push_back(*tileGround_1_5);
+                    break;
+                case 's':
+                    maze.push_back(*tileGround_2_5);
+                    break;
+                case 'z':
+                    maze.push_back(*tileGround_3_5);
+                    break;
+                case 'x':
+                    maze.push_back(*tileGround_1_6);
+                    break;
+                case 'c':
+                    maze.push_back(*tileGround_2_6);
+                    break;
+                case 'v':
+                    maze.push_back(*tileGround_3_6);
+                    break;              
                 default:
                     break;
             }
@@ -152,44 +183,49 @@ int main()
 
     character1->GetSprite()->setPosition(400, 300);
 
-    //TAREA:
+    BoxCollider* character1Collider = new BoxCollider(400, 300, new sf::Color(0, 255, 0, 255), 16, 16);
+    character1Collider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);
 
-	// Activa la sincronización vertical (60 fps)
-	/*window->setVerticalSyncEnabled(true);
+    //physics declaration
+    b2Vec2* gravity{new b2Vec2(0.f, 0.f)};
+    b2World* world{new b2World(*gravity)}; 
 
-	// Creamos una textura
-	sf::Texture textura;
+    //player physics
 
-	// Cargamos la textura desde un archivo
-	if(!textura.loadFromFile("data/Mustang.png"))
-	{
-		// Si hay un error salimos
-		std::cout << "No se pudo cargar la textura" << std::endl;
-	}
+    b2BodyDef* playerBodyDef{new b2BodyDef()};
+    playerBodyDef->type = b2BodyType::b2_dynamicBody;
+    playerBodyDef->position = *(new b2Vec2(character1->GetSprite()->getPosition().x, character1->GetSprite()->getPosition().y));
 
-	// Creamos un sprite
-	sf::Sprite sprite;
-	// Asignamos la textura al sprite
-	sprite.setTexture(textura);
-	// Seleccionamos solo un rectangulo de la textura
-	sprite.setTextureRect(sf::IntRect(120, 120, 128, 128));
-	// Movemos el sprite
-	sprite.move(100, 100);
-	// Cambiamos el origen al centro del sprite
-	sf::Vector2f centro;
-	centro.x = sprite.getTextureRect().width / 2.f;
-	centro.y = sprite.getTextureRect().height / 2.f;
-	sprite.setOrigin(centro);
-	// Rotamos el sprite 360 grados
-	sprite.rotate(360);
+    b2Body* playerBody{world->CreateBody(playerBodyDef)};
+    b2PolygonShape* playerPolygonShape{new b2PolygonShape()};
+    playerPolygonShape->SetAsBox(tileBaseWidth / 2, tileBaseHeight / 2); //la X debe ser la mitad y la Y también debe ser la mitad
 
+    b2FixtureDef* playerFixtureDef{new b2FixtureDef()};
+    playerFixtureDef->shape = playerPolygonShape;
+    playerFixtureDef->density = 1; // cuanto se va resistir a traspasar cosas?
+    playerFixtureDef->friction = 0; // cuanto se va resistir a moverse?
+    playerFixtureDef->restitution = 0; // cuanto va rebotar?
 
-	// Creamos otro sprite con la MISMA textura
-	sf::Sprite Mustang(textura);
-	Mustang.setPosition(200, 150);
-	Mustang.setTextureRect(sf::IntRect(0, 0, 364, 364));*/
+    b2Fixture* playerFixture{playerBody->CreateFixture(playerFixtureDef)};
 
-    //LO VISTO EN CLASE:
+    //treasure physics
+
+    b2BodyDef* treasureBodyDef{new b2BodyDef()};
+    treasureBodyDef->type = b2BodyType::b2_staticBody;
+    treasureBodyDef->position = *(new b2Vec2(treasureSprite->getPosition().x, treasureSprite->getPosition().y));
+
+    b2Body* treasureBody{world->CreateBody(treasureBodyDef)};
+    b2PolygonShape* treasurePolygonShape{new b2PolygonShape()};
+    treasurePolygonShape->SetAsBox(tileBaseWidth / 2, tileBaseHeight / 2); 
+
+    b2FixtureDef* treasureFixtureDef{new b2FixtureDef()};
+    treasureFixtureDef->shape = treasurePolygonShape;
+    treasureFixtureDef->density = 1; 
+    treasureFixtureDef->friction = 0; 
+    treasureFixtureDef->restitution = 0; 
+
+    b2Fixture* treasureFixture{treasureBody->CreateFixture(treasureFixtureDef)};
+
 
     //esto es el loop principal, mientras la ventana este abierta, esto se va ejecutar.
     while (window->isOpen())
@@ -207,10 +243,14 @@ int main()
         Vec2* keyboardAxis{inputs->GetKeyboardAxis()};
         Vec2* joystickAxis{inputs->GetJoystickAxis()};
    
+        //player sigue la posicion del cuerpo de física
+        character1->GetSprite()->setPosition(playerBody->GetPosition().x, playerBody->GetPosition().y);
+        treasureSprite->setPosition(treasureBody->GetPosition().x, treasureBody->GetPosition().y);
 
         if(sf::Joystick::isConnected(0))
         {
-            character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
+            playerBody->SetLinearVelocity(*(new b2Vec2(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED)));
+            //character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
             character1->FlipSpriteX(joystickAxis->x);
 
             if(std::abs(joystickAxis->x) > 0 || std::abs(joystickAxis->y) > 0)
@@ -226,7 +266,8 @@ int main()
         }
         else
         {
-            character1->GetSprite()->move(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED);
+            playerBody->SetLinearVelocity(*(new b2Vec2(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED)));
+            //character1->GetSprite()->move(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED);
             character1->FlipSpriteX(keyboardAxis->x);
 
             if(std::abs(keyboardAxis->x) > 0 || std::abs(keyboardAxis->y) > 0)
@@ -241,56 +282,35 @@ int main()
             }
         }
 
+
         window->clear(*(new sf::Color(150, 100, 0, 255)));//lipiar la pantalla
-
-        /*window->draw(*tileWall_1_1);
-        window->draw(*tileWall_1_2);
-        window->draw(*tileWall_1_3);
-
-        window->draw(*tileGround_1_4);
-        window->draw(*tileGround_2_4);
-        window->draw(*tileGround_3_4);
-
-        window->draw(*tileGround_1_5);
-        window->draw(*tileGround_2_5);
-        window->draw(*tileGround_3_5);
-
-        window->draw(*tileGround_1_6);
-        window->draw(*tileGround_2_6);
-        window->draw(*tileGround_3_6);*/
 
         for(auto& mazeTile : maze)
         {
             window->draw(mazeTile);
         }
+
+        character1Collider->GetBoxShape()->setPosition(character1->GetSprite()->getPosition());
         
         window->draw(*character1->GetSprite());
-        
+        window->draw(*character1Collider->GetBoxShape());
+        window->draw(*treasureSprite);
+        window->draw(*treasureCollider->GetBoxShape());
         window->display(); //mostrar en pantalla lo que se va dibujar
 
         sf::Time timeElapsed = clock->getElapsedTime();
         deltaTime = timeElapsed.asMilliseconds();
+        world->ClearForces();
+        world->Step(1.f / 100 * deltaTime, 8, 8);
         clock->restart();
+        
+        //std::cout << playerBody->GetPosition().x << " " << playerBody->GetPosition().y << std::endl; 
 
         //std::cout << "delta time: " << deltaTime << std::endl;
 
-        //Tmb de la Tarea
-        /*window->clear(sf::Color::Black);
-        window->draw(sprite);
-        window->draw(Mustang);   
-        window->display();*/
-
-        //inputs->GetJoystickAxis();
         delete keyboardAxis;
         delete joystickAxis;
-
     }
-
-    /*std::cout << &window << std::endl;
-    std::cout << &textura << std::endl;
-    std::cout << &Mustang << std::endl;
-    std::cout << &sprite << std::endl;
-    std::cin.get();*/
     
     return 0;
 }
