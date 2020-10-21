@@ -4,7 +4,6 @@
 
 #include "Inputs.hh"
 #include "Character.hh"
-#include "BoxCollider.hh"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -22,6 +21,10 @@ int main()
     sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), GAME_NAME);
     //aqui vas a guardar los eventos dentro de la ventana, eje: teclado, mouse, etc.
     sf::Event event;
+
+    //physics declaration
+    b2Vec2* gravity{new b2Vec2(0.f, 0.f)};
+    b2World* world{new b2World(*gravity)}; 
 
     sf::Clock* clock{new sf::Clock()};
     float deltaTime{};
@@ -83,13 +86,13 @@ int main()
     treasureSprite->setScale(SPRITE_SCALE, SPRITE_SCALE);
     treasureSprite->setPosition(400, 400);
 
-    BoxCollider* treasureCollider = new BoxCollider(300, 250, new sf::Color(0, 255, 0, 255), 16, 16);
+    BoxCollider* treasureCollider = new BoxCollider(300, 250, new sf::Color(0, 255, 0, 255), 16, 16,
+    new Rigidbody(world, b2BodyType::b2_staticBody, new b2Vec2(400, 400), tileBaseWidth / 2, tileBaseHeight / 2, 1, 0, 0),
+    treasureSprite);
+
     treasureCollider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);
 
     treasureCollider->GetBoxShape()->setPosition(treasureSprite->getPosition());
-
-    /* BoxCollider* character1Collider = new BoxCollider(400, 300, new sf::Color(0, 255, 0, 255), 16, 16);
-    character1Collider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);*/
 
 
 
@@ -172,7 +175,7 @@ int main()
     }
 
     //Main player
-    Character* character1{new Character(tilesTexture2, 16 * 1, 16 * 5, 16, 16, SPRITE_SCALE, SPRITE_SCALE)};
+    Character* character1{new Character(tilesTexture2, 16 * 1, 16 * 5, 16, 16, SPRITE_SCALE, SPRITE_SCALE, world, window)};
     character1->SetAnimations(
         new Animation*[2]
         {
@@ -181,50 +184,12 @@ int main()
         }
     );
 
-    character1->GetSprite()->setPosition(400, 300);
+    character1->SetPosition(400, 300);
 
-    BoxCollider* character1Collider = new BoxCollider(400, 300, new sf::Color(0, 255, 0, 255), 16, 16);
-    character1Collider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);
-
-    //physics declaration
-    b2Vec2* gravity{new b2Vec2(0.f, 0.f)};
-    b2World* world{new b2World(*gravity)}; 
-
-    //player physics
-
-    b2BodyDef* playerBodyDef{new b2BodyDef()};
-    playerBodyDef->type = b2BodyType::b2_dynamicBody;
-    playerBodyDef->position = *(new b2Vec2(character1->GetSprite()->getPosition().x, character1->GetSprite()->getPosition().y));
-
-    b2Body* playerBody{world->CreateBody(playerBodyDef)};
-    b2PolygonShape* playerPolygonShape{new b2PolygonShape()};
-    playerPolygonShape->SetAsBox(tileBaseWidth / 2, tileBaseHeight / 2); //la X debe ser la mitad y la Y también debe ser la mitad
-
-    b2FixtureDef* playerFixtureDef{new b2FixtureDef()};
-    playerFixtureDef->shape = playerPolygonShape;
-    playerFixtureDef->density = 1; // cuanto se va resistir a traspasar cosas?
-    playerFixtureDef->friction = 0; // cuanto se va resistir a moverse?
-    playerFixtureDef->restitution = 0; // cuanto va rebotar?
-
-    b2Fixture* playerFixture{playerBody->CreateFixture(playerFixtureDef)};
-
-    //treasure physics
-
-    b2BodyDef* treasureBodyDef{new b2BodyDef()};
-    treasureBodyDef->type = b2BodyType::b2_staticBody;
-    treasureBodyDef->position = *(new b2Vec2(treasureSprite->getPosition().x, treasureSprite->getPosition().y));
-
-    b2Body* treasureBody{world->CreateBody(treasureBodyDef)};
-    b2PolygonShape* treasurePolygonShape{new b2PolygonShape()};
-    treasurePolygonShape->SetAsBox(tileBaseWidth / 2, tileBaseHeight / 2); 
-
-    b2FixtureDef* treasureFixtureDef{new b2FixtureDef()};
-    treasureFixtureDef->shape = treasurePolygonShape;
-    treasureFixtureDef->density = 1; 
-    treasureFixtureDef->friction = 0; 
-    treasureFixtureDef->restitution = 0; 
-
-    b2Fixture* treasureFixture{treasureBody->CreateFixture(treasureFixtureDef)};
+    /*BoxCollider* character1Collider = new BoxCollider(400, 300, new sf::Color(0, 255, 0, 255), 16, 16,
+    new Rigidbody(world, b2BodyType::b2_dynamicBody, new b2Vec2(400, 300), tileBaseWidth / 2, tileBaseHeight / 2, 1, 0, 0),
+    character1->GetSprite());
+    character1Collider->GetBoxShape()->setScale(SPRITE_SCALE, SPRITE_SCALE);*/
 
 
     //esto es el loop principal, mientras la ventana este abierta, esto se va ejecutar.
@@ -243,14 +208,14 @@ int main()
         Vec2* keyboardAxis{inputs->GetKeyboardAxis()};
         Vec2* joystickAxis{inputs->GetJoystickAxis()};
    
-        //player sigue la posicion del cuerpo de física
-        character1->GetSprite()->setPosition(playerBody->GetPosition().x, playerBody->GetPosition().y);
-        treasureSprite->setPosition(treasureBody->GetPosition().x, treasureBody->GetPosition().y);
+        //player sigue la posicion del cuerpo de física}
+        //character1Collider->UpdatePhysics();
+        treasureCollider->UpdatePhysics();
+
 
         if(sf::Joystick::isConnected(0))
         {
-            playerBody->SetLinearVelocity(*(new b2Vec2(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED)));
-            //character1->GetSprite()->move(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED);
+            character1->Move(new b2Vec2(joystickAxis->x * deltaTime * PLAYER_MOVESPEED, joystickAxis->y * deltaTime * PLAYER_MOVESPEED));
             character1->FlipSpriteX(joystickAxis->x);
 
             if(std::abs(joystickAxis->x) > 0 || std::abs(joystickAxis->y) > 0)
@@ -266,8 +231,7 @@ int main()
         }
         else
         {
-            playerBody->SetLinearVelocity(*(new b2Vec2(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED)));
-            //character1->GetSprite()->move(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED);
+            character1->Move(new b2Vec2(keyboardAxis->x * deltaTime * PLAYER_MOVESPEED, keyboardAxis->y * deltaTime * PLAYER_MOVESPEED));
             character1->FlipSpriteX(keyboardAxis->x);
 
             if(std::abs(keyboardAxis->x) > 0 || std::abs(keyboardAxis->y) > 0)
@@ -290,10 +254,7 @@ int main()
             window->draw(mazeTile);
         }
 
-        character1Collider->GetBoxShape()->setPosition(character1->GetSprite()->getPosition());
-        
-        window->draw(*character1->GetSprite());
-        window->draw(*character1Collider->GetBoxShape());
+        character1->Update();
         window->draw(*treasureSprite);
         window->draw(*treasureCollider->GetBoxShape());
         window->display(); //mostrar en pantalla lo que se va dibujar
