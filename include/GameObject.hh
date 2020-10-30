@@ -20,6 +20,8 @@ class GameObject
         float tileBaseHeight;
         sf::RenderWindow* window;
 
+        const char* tagName{"default"};
+
         void InitSprite(b2World*&, b2Vec2*, b2BodyType);
     public:
         GameObject(sf::Texture*&, float, float, float, float, float, float, b2Vec2*, b2BodyType, b2World*&, sf::RenderWindow*&);
@@ -28,4 +30,6 @@ class GameObject
          BoxCollider* GetCollider() const;
         void Update();
         void SetPosition(float, float);
+        const char* GetTagName() const;
+        void SetTagName(const char*);
 };

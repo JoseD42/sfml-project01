@@ -7,6 +7,8 @@
 #include "Character.hh"
 #include "Tile.hh"
 #include "GameObject.hh"
+#include "ContactListener.hh"
+#include "Score.hh"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -14,6 +16,7 @@
 #define TILES1 "assets/sprites/tiles1.png"
 #define TILES2 "assets/sprites/tiles2.png"
 #define TILES3 "assets/sprites/tiles3.png"
+#define FONT1 "assets/fonts/8-bit Arcade In.ttf"
 #define SPRITE_SCALE 4.f
 #define FPS 120
 #define PLAYER_MOVESPEED 3.0f
@@ -25,9 +28,13 @@ int main()
     //aqui vas a guardar los eventos dentro de la ventana, eje: teclado, mouse, etc.
     sf::Event event;
 
+    Score* score{new Score(FONT1, "Score ", 48, new sf::Color(255, 255, 255), window)};
+    
+
     //physics declaration
     b2Vec2* gravity{new b2Vec2(0.f, 0.f)};
     b2World* world{new b2World(*gravity)}; 
+    world->SetContactListener(new ContactListener(score));
 
     sf::Clock* clock{new sf::Clock()};
     float deltaTime{};
@@ -59,11 +66,11 @@ int main()
             new Animation(6, 0, 5, character1->GetSprite(), 80.f)
         }
     );
+    character1->SetTagName("player");
 
     GameObject* treasure{new GameObject(tilesTexture3, 16 * 19, 16 * 19, 16, 16, 
     SPRITE_SCALE, SPRITE_SCALE, new b2Vec2(400, 400), b2BodyType::b2_staticBody, world, window)}; 
-
-    //character1->SetPosition(400, 300);
+    treasure->SetTagName("item");
 
     //esto es el loop principal, mientras la ventana este abierta, esto se va ejecutar.
     while (window->isOpen())
@@ -114,13 +121,14 @@ int main()
             }
         }
 
-
         window->clear(*(new sf::Color(150, 100, 0, 255)));//lipiar la pantalla
 
         for(auto& mazeTile : *maze1->GetContainer())
         {
             window->draw(*mazeTile->GetSprite());
         }
+
+        score->Update();
 
         character1->Update();
         treasure->Update();

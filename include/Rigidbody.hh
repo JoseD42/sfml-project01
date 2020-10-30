@@ -13,4 +13,5 @@ class Rigidbody
         Rigidbody(b2World*&, b2BodyType, b2Vec2*, float, float, float, float, float);
         ~Rigidbody();
         b2Body* GetBody() const;
+        void SetUserData(void*);
 };

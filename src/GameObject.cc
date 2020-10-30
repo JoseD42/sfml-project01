@@ -27,9 +27,9 @@ void GameObject::InitSprite(b2World*& world, b2Vec2* position, b2BodyType bodyTy
     sprite = new sf::Sprite(*texture, *(new sf::IntRect(cropPosX, cropPosY, cropWidth, cropHeight)));
     sprite->setScale(*(new sf::Vector2f(scaleX, scaleY)));
 
-    boxCollider = new BoxCollider(position->x, position->y, new sf::Color(0, 255, 0, 255), cropWidth, cropHeight,
-    new Rigidbody(world, bodyType, position, tileBaseWidth / 2, tileBaseHeight / 2, 1, 0, 0),
-    sprite);
+    Rigidbody* rb{new Rigidbody(world, bodyType, position, tileBaseWidth / 2, tileBaseHeight / 2, 1, 0, 0)};
+    rb->SetUserData((void*) this);
+    boxCollider = new BoxCollider(position->x, position->y, new sf::Color(0, 255, 0, 255), cropWidth, cropHeight, rb, sprite);
     boxCollider->GetBoxShape()->setScale(scaleX, scaleY);
 }
 
@@ -53,4 +53,14 @@ void GameObject::Update()
 BoxCollider* GameObject::GetCollider() const
 {
     return boxCollider;
+}
+
+const char* GameObject::GetTagName() const
+{
+    return tagName;
+}
+
+void GameObject::SetTagName(const char* tagName)
+{
+    this->tagName = tagName;
 }
