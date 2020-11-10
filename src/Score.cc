@@ -1,15 +1,17 @@
 #include "Score.hh"
 #include<iostream>
 
-Score::Score(const char* fontUrl, const char* text, unsigned int fontSize, sf::Color* fillColor, sf::RenderWindow*& window)
+Score::Score(const char* fontUrl, std::string text, unsigned int fontSize, sf::Vector2f* position, sf::Color* fillColor, sf::RenderWindow*& window)
 {
     font->loadFromFile(fontUrl);
     scoreText->setFont(*font);
-    scoreText->setString(text);
+    scoreText->setString(text + " 0");
     scoreText->setCharacterSize(fontSize);
     scoreText->setFillColor(*fillColor);
     this->text = text;
     this->window = window;
+
+    scoreText->setPosition(*position);
 }
 
 Score::~Score()

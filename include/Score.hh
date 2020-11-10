@@ -8,9 +8,9 @@ class Score
         sf::Text* scoreText{new sf::Text()};
         sf::RenderWindow* window;
         int score{};
-        const char* text;
+        std::string text;
     public:
-        Score(const char*, const char*, unsigned int, sf::Color*, sf::RenderWindow*&);
+        Score(const char*, std::string, unsigned int, sf::Vector2f*, sf::Color*, sf::RenderWindow*&);
         ~Score();
         void Update();
         void AddPoints(unsigned int);
